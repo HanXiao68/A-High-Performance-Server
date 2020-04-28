@@ -37,3 +37,19 @@ epoll：只拷贝一次，共享内存交互。内部基于红黑树特点。
 iocp：不支持linux
 
 在libevent中的级别：epoll---poll---select--iocp(需要指定)
+
+---
+
+libevent 开发
+    环境配置初始化 event base_new
+    evutil socket函数封装
+    事件IO处理：event_new  需要传递socket或者其他fd
+    缓冲IO：bufferevent网络接口（不用传递socket） 读写都在缓冲进行
+    循环：event_base_dispatch
+
+
+使用libevent的关键点是处理并发 事件IO，或者跨平台的socket
+
+
+测试libevent在linux下支持的 IO多路复用模式
+
