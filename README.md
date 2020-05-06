@@ -73,3 +73,56 @@ non-blocking IO的核心思想是避免阻塞在read()和write()或其他IO系�
    
    一方面，我们不希望服务程序超载
     另一方面，因为file descripter（文件描述符）是稀缺资源。如果fd耗尽，结果跟 调用malloc()失败，抛出bad_malloc 错误的严重程度一样。
+
+---
+# 线程池ThreadPool
+计算机一般8核16线程，在32线程以下
+
+	event base 可以设置加锁。用IO多路复用
+        
+	window不支持管道。memcache是基于管道。
+        
+	线程池：memcache的源码：Thread.c的文件 线程池的实现：分发线程，初始化线程，调用linevent时间的分发，然后阻塞。
+        
+	x threadPool:
+        
+			来一个连接，发一个线程
+                        
+			线程数量和CPU线程数一样就行。8核16线程
+                        
+			非阻塞方式，
+                        
+			先初始化10个线程。初始化和创建好
+                        
+			分发：轮询的方式。 dispatch（） memcache也是采用这种方式
+                        
+				线程添加到任务队列中 参考memcache  发一个管道消息，用的epoll。
+                                
+				处理：交给libevent。
+                                
+	xthread：
+		setup（）安装线程，初始化libevent事件
+		创建管道事件。线程池和线程通信，通过管道
+		每个线程用一个event_base
+		start():
+			kaishi 线程。
+			启动线程。用的c++11的thread。
+		main():
+			线程函数，调用libevent的事件循环。
+		addtask():
+			添加到任务队列。一个线程可以同时处理多个任务(可以是一个http连接。或者处理各传感器信息。)，共用一个event_base
+			用了锁，保证线程安全
+		activate():
+			向线程发出激活的管道消息。“传感器连接激活”
+		notify（）：
+			收到线程池发出的激活消息；   获取待处理任务 并处理（LT ET）
+	Xtask:
+		virtual	bool init() =0 纯虚函数作为初始化接口
+		每个具体任务继承接口，自己去实现。	
+		每个任务有 	
+
+
+
+
+
+
