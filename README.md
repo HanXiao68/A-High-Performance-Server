@@ -75,7 +75,7 @@ non-blocking IO的核心思想是避免阻塞在read()和write()或其他IO系�
     另一方面，因为file descripter（文件描述符）是稀缺资源。如果fd耗尽，结果跟 调用malloc()失败，抛出bad_malloc 错误的严重程度一样。
 
 ---
-<img src="https://github.com/HanXiao68/libevent/blob/master/image/reactor.png" width="575"/>
+<img src="https://github.com/HanXiao68/libevent/blob/master/image/reactor.png" width="775"/>
 # Reactor模式
 
     要求主线程（IO处理单元）只负责监听文件描述符fd上是否有时间发生，有的话立即将事件通知工作线程（逻辑单元）。除此之外，主线程不做任何其他实质性的工作。
