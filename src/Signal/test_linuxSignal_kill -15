@@ -1,0 +1,37 @@
+//test_linuxSignal
+#include<iostream>
+#include<event2/event>
+#include<signal.h>
+
+using namespace std;
+static void hanxiao_quit(int sock，short which,void *arg)//sock_fd,属性，参数
+{
+	cout<<"退出 hanxiao_quit"<<endl;
+	return -1;
+}
+
+int main(int argc, char const *argv[])
+{
+	event_base *base = event_base_new();
+
+	//添加信号  hanxiao_quit  处于nopending状态，、不是待决状态
+	//evsignal_new 默认的状态：EV_signal | persist持久化
+	event *csig = evsignal_new(base,SIGINT,hanxiao_quit,base);//上下文消息
+	if(!csig){
+		cerr<<"信号创建错误"<<endl;
+		return -1;
+	}
+
+	//添加时间到pending
+	if(event_add(csig,0)!=0){
+		cerr<<"信号add错误"<<endl;
+		return -1;
+	}//否则==0，创建成功。
+
+	//添加时间到主循环
+	event_base_dispatch(base);
+	event_free(csig);
+	event_base_free(base);
+
+	return 0;
+}
