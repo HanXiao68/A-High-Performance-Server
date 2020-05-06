@@ -64,3 +64,10 @@ libevent 开发
 
 测试libevent在linux下支持的 IO多路复用模式
 
+
+为什么non-blocking网络编程中应用层buffer是必需的？
+non-blocking IO的核心思想是避免阻塞在read()和write()或其他IO系统调用上，这样可以最大限度的复用thread-of-control，让一个线程服务于多个socket连接。IO线程只能阻塞在IO多路复用函数上，例如select/poll/epoll_wait.。因此，应用层的缓冲是必需的，每个TCPsocket都有输入buffer和输出buffer。
+
+为什么要限制并发连接数？建立线程池？
+    一方面，我们不希望服务程序超载
+    另一方面，因为file descripter（文件描述符）是稀缺资源。如果fd耗尽，结果跟 调用malloc()失败，抛出bad_malloc 错误的严重程度一样。
