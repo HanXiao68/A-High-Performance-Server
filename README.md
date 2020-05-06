@@ -75,6 +75,8 @@ non-blocking IO的核心思想是避免阻塞在read()和write()或其他IO系�
     另一方面，因为file descripter（文件描述符）是稀缺资源。如果fd耗尽，结果跟 调用malloc()失败，抛出bad_malloc 错误的严重程度一样。
 
 ---
+<img src="https://github.com/HanXiao68/libevent/blob/master/image/reactor.png" width="575"/>
+---
 # 线程池ThreadPool
 计算机一般8核16线程，在32线程以下
 
@@ -122,7 +124,7 @@ non-blocking IO的核心思想是避免阻塞在read()和write()或其他IO系�
 		每个任务有 	
 
 
-<img src=" " width="575"/>
+
 
 
 
