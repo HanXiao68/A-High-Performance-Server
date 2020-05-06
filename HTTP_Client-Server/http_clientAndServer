@@ -1,0 +1,169 @@
+
+#include <event2/event.h>
+#include <event2/listener.h>
+#include <event2/http.h>
+#include <event2/keyvalq_struct.h>
+#include <event2/buffer.h>
+#include <string.h>
+#ifndef _WIN32
+#include <signal.h>
+#endif
+#include <iostream>
+#include <string>
+using namespace std;
+#define WEBROOT "." 
+#define DEFAULTINDEX "index.html"
+
+void http_cb(struct evhttp_request *request, void *arg)
+{
+	cout << "http_cb" << endl;
+	//1 获取浏览器的请求信息
+	//uri 
+	const char *uri = evhttp_request_get_uri(request);
+	cout << "uri:" << uri << endl;
+
+	//请求类型 GET POST
+	string cmdtype;
+	switch (evhttp_request_get_command(request))
+	{
+	case EVHTTP_REQ_GET:
+		cmdtype = "GET";
+		break;
+	case EVHTTP_REQ_POST:
+		cmdtype = "POST";
+		break;
+	}
+	cout << "cmdtype:" << cmdtype << endl;
+	// 消息报头
+	evkeyvalq *headers = evhttp_request_get_input_headers(request);
+	cout << "====== headers ======" << endl;
+	for (evkeyval *p = headers->tqh_first; p != NULL; p = p->next.tqe_next)
+	{
+		cout << p->key << ":" << p->value << endl;
+	}
+
+	// 请求正文 (GET为空，POST有表单信息  )
+	evbuffer *inbuf = evhttp_request_get_input_buffer(request);
+	char buf[1024] = { 0 };
+	cout << "======= Input data ======" << endl;
+	while (evbuffer_get_length(inbuf))
+	{
+		int n = evbuffer_remove(inbuf, buf, sizeof(buf) - 1);
+		if (n > 0)
+		{
+			buf[n] = '\0';
+			cout << buf << endl;
+		}
+	}
+
+	//2 回复浏览器
+	//状态行 消息报头 响应正文 HTTP_NOTFOUND HTTP_INTERNAL
+
+	//  分析出请求的文件 uri
+	//  设置根目录 WEBROOT
+	// windows 上要加（项目属性=> C/C++=>预处理器）
+	// _CRT_SECURE_NO_WARNINGS
+	
+
+void void http_client_cb(struct evhttp_request *req, void *ctx){
+	cout<<"http client cb"<<endl;
+}
+int main()
+{
+#ifdef _WIN32 
+	//初始化socket库
+	WSADATA wsa;
+	WSAStartup(MAKEWORD(2,2),&wsa);
+#else
+	//忽略管道信号，发送数据给已关闭的socket
+	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+		return 1;
+#endif
+
+    std::cout << "test server!\n"; 
+	//创建libevent的上下文
+	event_base * base = event_base_new();
+	if (base)
+	{
+		cout << "event_base_new success!" << endl;
+	}
+	
+	// http  服务器
+	//生成请求信息 GET
+	string http_url = "http://ffmpeg.club/index.html";
+
+	//分析url地址
+	evhttp_uri *uri = evhttp_uri_parse(http_url.c_str());
+
+	//scheme 
+	const char *scheme = evhttp_uri_get_scheme(uri);
+	if(!scheme){
+		cerr<<"scheme failed!"<<endl;
+			return -1;
+	}
+
+	//解析host
+	const char *host = evhttp_uri_get_host(uri);
+	if(!host){
+		cerr<<host error<<endl;
+		return -1;
+	}
+	//port
+	int port = evhttp_uri_get_port(uri);
+	if(!port){
+		cerr<<host error<<endl;
+		return -1;
+	}
+
+	//要访问的地址
+	const char *path = evhttp_uri_get_path(uri);
+	if(!path|| strlen(path) ==0){
+		path ="/"
+		cerr<<host error<<endl;
+		return -1;
+	}else{
+		cout<<"path:"<<path<<endl;
+	}
+
+	// ?后面的内容
+	const char *query = evhttp_uri_get_quer(uri);
+	if(!query){
+		cerr<<query error<<endl;
+		return -1;
+	}
+
+	// bufferevent 连接服务器
+	bufferevent *bev = bufferevent_socket_new(base,-1，BEV_OPT_LCOSE_ON_FREE);//-1指颞部创建buffer.  BEV_OPT_LCOSE_ON_FREE关闭buffer时同时关闭socket
+	evhttp_connection *evcon =evhttp_connection_base_bufferevent_new(
+		base,NULL,bev,host,port);
+
+	//创建 http client 请求  回调函数设置
+	evhttp_request *req = evhttp_request_new(http_client_cb,bev);
+
+	//设置请求的head  消息报头 信息
+	evhttp_request *req = evhttp_request_new(http_client_cb,bev);
+	evhttp_add_header(output_headers,"Host",host);
+
+	//发起请求  连接信息  请求   get  路径
+	evhttp_make_request(evcon,req，EVHTTP_REQ_GET，path);
+
+
+
+// post发两次请求，做法：；每次http请求，都创建一个eventbase。开销：重点在发送数据和接受数据上，
+
+
+
+
+
+	//事件分发处理
+	if(base)
+		event_base_dispatch(base);
+	if(base)
+		event_base_free(base);
+	if(evh)
+		evhttp_free(evh);
+#ifdef _WIN32
+	WSACleanup();
+#endif
+	return 0;
+}
