@@ -77,7 +77,9 @@ non-blocking IO的核心思想是避免阻塞在read()和write()或其他IO系�
 ---
 <img src="https://github.com/HanXiao68/libevent/blob/master/image/reactor.png" width="575"/>
 ---
+
 # 线程池ThreadPool
+
 计算机一般8核16线程，在32线程以下
 
 	event base 可以设置加锁。用IO多路复用
