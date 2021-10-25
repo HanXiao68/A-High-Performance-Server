@@ -7,8 +7,8 @@
 
 # 目录
 
-| Chapter 0 | Chapter 1 | Chapter 2 | Chapter 3| Chapter 4 |Chapter 5|
-| :---------:| :---------: | :---------: | :---------: | :--------: |:--------:|
+| Chapter 0 | Chapter 1 | Chapter 2 | Chapter 3| Chapter 4 |
+| :---------:| :---------: | :---------: | :---------: | :--------: |
 |[编译和安装](#pro)|[文件处理](#file)|[性能分析](#sysinfo)|[网络工具](#net)|[其他](#other)|
 ---
 
@@ -35,7 +35,7 @@ c++中static 不需要对象就可以访问
 
 select：跨平台--Linux和window都支持。每次都要从用户空间拷贝到内核空间。 遍历整个fd_set.  接口简单，开发简单；监听的fd数量有限制。
 
-poll：和select
+poll：和select基本一致。poll没有fd的数量限制。select有限制为1024.
 
 epoll：只拷贝一次，共享内存交互。内部基于红黑树特点。
         不用全部复制，返回双向链表
